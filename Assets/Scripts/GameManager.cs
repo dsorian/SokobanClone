@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class GameManager : MonoBehaviour
 {
@@ -25,6 +26,10 @@ public class GameManager : MonoBehaviour
             // Colocar un tile en las coordenadas del Tilemap
             tilemap.SetTile(tilePos, tile);
         }
+    }
+
+    public void ParedSeleccionada(){
+        Debug.Log("Pared seleccionada.");
     }
 
 }
