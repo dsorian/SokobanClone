@@ -11,18 +11,20 @@ public class GameManager : MonoBehaviour
     public GameObject elementoMapaPrefab;  //Uno de los objetos que conforman el mapa
     public GameObject posMapa;      //Posición del mapa
 
+    private int teselaSeleccionada;   //Indicar la tesela seleccionada de teselas
+
+    public Sprite[] teselas;    //Las teselas que tenemos para poner
+
     // Start is called before the first frame update
     void Start()
     {
         // Inicializar la matriz de GameObjects
         matrizMapa = new GameObject[rows, cols];
-
         // Crear y posicionar los sprites
-        for (int i = 0; i < rows; i++)
+        for (int i = rows-1; i >= 0; i--)
         {
-            for (int j = 0; j < cols; j++)
+            for (int j = cols-1; j >= 0; j--)
             {
-                Debug.Log("clonando sprite"+i+" - "+j);
                 // Instanciar el spritePrefab como un GameObject
                 GameObject newSprite = Instantiate(elementoMapaPrefab, posMapa.transform);
 
@@ -37,15 +39,65 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        // Detectar el clic del ratón
+        // Click izquierdo del ratón pulsado
         if (Input.GetMouseButtonDown(0))
         {
-           
+            // Convertir la posición del ratón
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            // Realizar un raycast para detectar objetos clicados
+            if (Physics.Raycast(ray, out hit))
+            {
+                // Verificar si el objeto clicado tiene un componente SpriteRenderer
+                GameObject clickedObject = hit.collider.gameObject;
+                SpriteRenderer spriteRenderer = clickedObject.GetComponent<SpriteRenderer>();
+                if (spriteRenderer != null)
+                {
+                    // Llamar al método OnSpriteClicked con el objeto clicado como argumento
+                    OnSpriteClicked(clickedObject);
+                }
+            }else
+                Debug.Log("no ha funcionado el raycast");
         }
     }
 
-    public void ParedSeleccionada(){
-        Debug.Log("Pared seleccionada.");
+    public void SueloClicked(){
+        Debug.Log("Suelo clicked.");
+        teselaSeleccionada=0;
     }
 
+    public void PlayerClicked(){
+        Debug.Log("Player clicked.");
+        teselaSeleccionada=1;
+    }
+
+    public void ParedClicked(){
+        Debug.Log("Pared clicked.");
+        teselaSeleccionada=2;
+    }
+
+    public void CajaClicked(){
+        Debug.Log("Caja clicked.");
+        teselaSeleccionada=3;
+    }
+
+    public void PosCajaClicked(){
+        Debug.Log("PosCaja clicked.");
+        teselaSeleccionada=4;
+    }
+
+    public void CargarClicked(){
+        Debug.Log("Cargar clicked.");
+    }
+    public void GuardarClicked(){
+        Debug.Log("Guardar clicked.");
+    }
+
+    // Método que será llamado cuando se haga clic en un sprite
+    public void OnSpriteClicked(GameObject clickedSprite)
+    {
+        Debug.Log("Sprite clicado: " + clickedSprite.name);
+        clickedSprite.gameObject.GetComponent<SpriteRenderer>().sprite = teselas[teselaSeleccionada];
+    }
 }
