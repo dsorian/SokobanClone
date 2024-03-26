@@ -5,8 +5,7 @@ using UnityEngine.Tilemaps;
 
 public class GameManager : MonoBehaviour
 {
-    public Tilemap tilemap;
-    public TileBase tile;
+    public GameObject[][] mapa;    //Matriz con las figuras que conforman el mapa
 
     // Start is called before the first frame update
     void Start()
@@ -19,12 +18,7 @@ public class GameManager : MonoBehaviour
         // Detectar el clic del ratón
         if (Input.GetMouseButtonDown(0))
         {
-            // Convertir la posición del ratón a coordenadas del Tilemap
-            Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector3Int tilePos = tilemap.WorldToCell(mouseWorldPos);
-
-            // Colocar un tile en las coordenadas del Tilemap
-            tilemap.SetTile(tilePos, tile);
+           
         }
     }
 
