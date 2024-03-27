@@ -15,19 +15,24 @@ public class GameManager : MonoBehaviour
 
     public Sprite[] teselas;    //Las teselas que tenemos para poner
 
+    public MapsCollection mapsCollection; //Referencia al scriptableObject que guardará los mapas del juego.
+
     // Start is called before the first frame update
     void Start()
     {
         // Inicializar la matriz de GameObjects
         matrizMapa = new GameObject[rows, cols];
         // Crear y posicionar los sprites
-        for (int i = rows-1; i >= 0; i--)
+        for (int i = 0; i < rows; i++)
         {
-            for (int j = cols-1; j >= 0; j--)
+            for (int j = 0; j < cols; j++)
             {
                 // Instanciar el spritePrefab como un GameObject
                 GameObject newSprite = Instantiate(elementoMapaPrefab, posMapa.transform);
-
+                
+                newSprite.gameObject.GetComponent<ElementoMapa>().fila = i;
+                newSprite.gameObject.GetComponent<ElementoMapa>().columna = j
+                ;
                 // Posicionar el sprite en la matriz
                 newSprite.transform.localPosition = new Vector3(i, j, 0);
 
@@ -92,6 +97,18 @@ public class GameManager : MonoBehaviour
     }
     public void GuardarClicked(){
         Debug.Log("Guardar clicked.");
+        if (mapsCollection != null)
+        {
+            // Obtener las matrices de algún lugar...
+            List<int[,]> mapToSave = GetMapToSave();
+            mapsCollection.SaveMatrices(mapToSave);
+        }
+    }
+
+    private List<int[,]> GetMapToSave()
+    {
+        // Aquí obtienes las matrices de algún lugar (por ejemplo, de la escena, de otros objetos, etc.)
+        return new List<int[,]>();
     }
 
     // Método que será llamado cuando se haga clic en un sprite
