@@ -17,32 +17,56 @@ public class MatrixData
 [CreateAssetMenu(fileName = "NewMapsCollection", menuName = "Custom/MapsCollection")]
 public class MapsCollection : ScriptableObject
 {
-    public List<MatrixData> matrices = new List<MatrixData>();
+    public List<MatrixData> mapas = new List<MatrixData>();
 
     // Guardar la información de las matrices en el ScriptableObject
-    public void SaveMatrices(List<int[,]> matricesToSave){
-        matrices.Clear();
+    public void SaveMap(int[,] mapaParaSalvar){
+        mapas.Clear();
 
-        foreach (var matrixData in matricesToSave)
-        {
-            MatrixData newMatrix = new MatrixData(matrixData.GetLength(0), matrixData.GetLength(1)); // Crear una nueva instancia de MatrixData
-            newMatrix.matrix = matrixData;
-            matrices.Add(newMatrix);
-        }
+        MatrixData newMap = new MatrixData(mapaParaSalvar.GetLength(0), mapaParaSalvar.GetLength(1)); // Crear una nueva instancia de MatrixData
+        newMap.matrix = mapaParaSalvar;
+        mapas.Add(newMap);
 
         Debug.Log("Matrices guardadas en ScriptableObject.");
     }
     // Cargar la información de las matrices desde el ScriptableObject
-    public List<int[,]> LoadMatrices()
+    public List<int[,]> LoadMaps()
     {
         List<int[,]> loadedMatrices = new List<int[,]>();
 
-        foreach (var matrixData in matrices)
+        foreach (var matrixData in mapas)
         {
             loadedMatrices.Add(matrixData.matrix);
         }
 
         return loadedMatrices;
+    }
+
+    public int[,] LoadMap(int index)
+    {
+        if (index >= 0 && index < mapas.Count)
+        {
+            return mapas[index].matrix;
+        }
+        else
+        {
+            Debug.LogWarning("Índice de mapa fuera de rango.");
+            return null;
+        }
+    }
+
+    // Elimina una matriz de la colección por su índice
+    public void RemoveMap(int index)
+    {
+        if (index >= 0 && index < mapas.Count)
+        {
+            mapas.RemoveAt(index);
+            Debug.Log("Mapa eliminado.");
+        }
+        else
+        {
+            Debug.LogWarning("Índice de mapa fuera de rango.");
+        }
     }
 }
 

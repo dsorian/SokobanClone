@@ -17,9 +17,14 @@ public class GameManager : MonoBehaviour
 
     public MapsCollection mapsCollection; //Referencia al scriptableObject que guardará los mapas del juego.
 
+    public int kakota = 4;
+
     // Start is called before the first frame update
     void Start()
     {
+        //Cargamos los mapas guardados 
+        mapsCollection.LoadMaps();
+
         // Inicializar la matriz de GameObjects
         matrizMapa = new GameObject[rows, cols];
         // Crear y posicionar los sprites
@@ -65,6 +70,11 @@ public class GameManager : MonoBehaviour
             }else
                 Debug.Log("no ha funcionado el raycast");
         }
+        if (Input.GetKeyUp(KeyCode.Alpha2)){
+            Debug.Log("Has pulsado 2");
+
+        }
+
     }
 
     public void SueloClicked(){
@@ -94,21 +104,35 @@ public class GameManager : MonoBehaviour
 
     public void CargarClicked(){
         Debug.Log("Cargar clicked.");
+        int[,] mapaCargado = mapsCollection.LoadMap(0);
+        for(int i = 0; i< rows; i++){
+            for(int j = 0; j< cols; j++){
+                Debug.Log("Se ha cargado el mapa. Elmento: "+i+"-"+j+" Contiene: "+mapaCargado[i,j]);
+            }
+        }
     }
     public void GuardarClicked(){
         Debug.Log("Guardar clicked.");
+        // Obtener las matrices de algún lugar...
+        int[,] mapParaSalvar = new int[rows,cols];
+
         if (mapsCollection != null)
         {
-            // Obtener las matrices de algún lugar...
-            List<int[,]> mapToSave = GetMapToSave();
-            mapsCollection.SaveMatrices(mapToSave);
-        }
-    }
+            //Generamos la matriz de números para guardar
+            // Crear y posicionar los sprites
+            int tipoTesela;    //0=suelo 1=player 2=pared 3=caja 4=posicionCaja
+            for (int i = 0; i < rows; i++){
+                for (int j = 0; j < cols; j++){
 
-    private List<int[,]> GetMapToSave()
-    {
-        // Aquí obtienes las matrices de algún lugar (por ejemplo, de la escena, de otros objetos, etc.)
-        return new List<int[,]>();
+                    //Guardamos el tipo de baldosa
+                    //De momento le pongo que el 0 es pared
+                    tipoTesela = kakota;
+                    mapParaSalvar[i,j] = tipoTesela;
+                }
+            }
+            
+            mapsCollection.SaveMap(mapParaSalvar);
+        }
     }
 
     // Método que será llamado cuando se haga clic en un sprite

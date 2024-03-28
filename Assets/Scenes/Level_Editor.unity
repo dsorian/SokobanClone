@@ -2062,6 +2062,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 765788be2e03cca4da2c0a66780d175d, type: 3}
   - {fileID: 21300000, guid: 099d1837326681f4bbd6209e830d7b64, type: 3}
   - {fileID: 21300000, guid: 56ddac3cba6eaab44aabca7e9ca13410, type: 3}
+  mapsCollection: {fileID: 11400000, guid: 554d62104dddcd5468f5ba1430d203c6, type: 2}
+  kakota: 4
 --- !u!4 &1786988149
 Transform:
   m_ObjectHideFlags: 0
