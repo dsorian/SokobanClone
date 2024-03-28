@@ -1,24 +1,48 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
 [System.Serializable]
 public class MatrixData
 {
     public int[,] matrix;
+    public String nombreMapa = "Nivel ?";
 
     public MatrixData(int rows, int columns)
     {
         matrix = new int[rows, columns];
     }
 }
+*/
 
-
-[CreateAssetMenu(fileName = "NewMapsCollection", menuName = "Custom/MapsCollection")]
+//[CreateAssetMenu(fileName = "NewMapsCollection", menuName = "Custom/MapsCollection")]
 public class MapsCollection : ScriptableObject
 {
-    public List<MatrixData> mapas = new List<MatrixData>();
+    public List<int[,]> mapas;
 
+    public MapsCollection(){
+        mapas = new List<int[,]>();
+    }
+
+    public void AddNewData(int[,] elMapa){
+        mapas.Add(elMapa);
+    }
+
+    public void GetDataAt(int numMapa, out int[,] elMapa){
+        elMapa = mapas[numMapa];
+    }
+
+    public void Reset(){
+        mapas.Clear();
+    }
+
+    public void RemoveData(int[,] elMapa){
+        mapas.Remove(elMapa);
+    }
+
+/*
     // Guardar la información de las matrices en el ScriptableObject
     public void SaveMap(int[,] mapaParaSalvar){
         mapas.Clear();
@@ -46,6 +70,12 @@ public class MapsCollection : ScriptableObject
     {
         if (index >= 0 && index < mapas.Count)
         {
+            Debug.Log("En MapsCollection.LoadMap("+index+"). Mapas que existen: "+mapas.Count);
+            for(int i=0;i<9;i++){
+                for(int j=0;j<9;j++){
+                    Debug.Log("Recorriendo el mapa. elemento: "+i+"-"+j+" contiene: "+mapas[index].matrix[i,j]);
+                }
+            }
             return mapas[index].matrix;
         }
         else
@@ -68,5 +98,6 @@ public class MapsCollection : ScriptableObject
             Debug.LogWarning("Índice de mapa fuera de rango.");
         }
     }
+*/
 }
 
