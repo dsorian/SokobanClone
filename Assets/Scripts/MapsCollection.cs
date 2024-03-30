@@ -7,12 +7,23 @@ using UnityEngine;
 [System.Serializable]
 public class MapMatrix
 {
-    public int[,] matrix;
+    /*
+    Como no consigo guardar la matriz en el JSon la guardo como un array unidimensional guardando el número
+    de filas y columnas.
+    Accederé a la celda [row,col] como [row*col+col]
+    */
+    public int[] matrix;
+    public int rows, cols; 
     public String nombreMapa = "Nivel ?";
 
-    public MapMatrix(int rows, int columns)
+   public int[] arrayIntsPrueba = {1,2,3,4,5,6};
+    public int[,] matrizIntsPrueba = {{1,2,3,4},{5,6,7,8}};
+
+    public MapMatrix(int rows, int cols)
     {
-        matrix = new int[rows, columns];
+        matrix = new int[rows * cols];
+        this.rows = rows; 
+        this.cols = cols;
     }
 }
 
@@ -21,6 +32,7 @@ public class MapsCollection : ScriptableObject
 {
     public List<MapMatrix> mapas;
     public int numMapas;
+ 
 
     public MapsCollection(){
         mapas = new List<MapMatrix>();
@@ -38,21 +50,22 @@ public class MapsCollection : ScriptableObject
         for (int i = 0; i < filas ; i++ ){
             for( int j = 0; j<columnas;j++){
                 Debug.Log("Creando una casilla del mapa inicializado, todo a 0 (suelo).");
-                mapas[0].matrix[i,j] = 0;
+                mapas[0].matrix[i * j + j ] = 0;
             }
         }
         //mapas.Add(unMapa);
         numMapas = 1;
+        mapas[0].nombreMapa="Nivel "+numMapas;
     }
 
-    public void AddNewData(int[,] elMapa){
-        mapas.Add(new MapMatrix(elMapa.GetLength(0),elMapa.GetLength(1)));
+    public void AddNewData(int[] elMapa,int rows, int cols){
+        mapas.Add(new MapMatrix(rows,cols));
         //numMapas++;
         mapas[numMapas].matrix= elMapa;
         mapas[numMapas].nombreMapa = "Nivel "+numMapas;
     }
 
-    public void GetDataAt(int numMapa, out int[,] elMapa){
+    public void GetDataAt(int numMapa, out int[] elMapa){
         elMapa = mapas[numMapa].matrix;
     }
 
