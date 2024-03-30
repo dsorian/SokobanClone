@@ -1,8 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
+using System.IO;
 
 public class GameManager : MonoBehaviour
 {
@@ -18,11 +21,12 @@ public class GameManager : MonoBehaviour
 
     private MapsCollection mapsCollection; //Referencia al scriptableObject que guardará los mapas del juego.
 
-    public int kakota = 4;
+    private int mapaActual = 0;    //Mapa mostrado actualmente.
 
     // Start is called before the first frame update
     void Start()
     {
+        matrizMapa = new GameObject[rows,cols];
         //Cargamos los mapas guardados 
         ReiniciarMapa();
 
@@ -95,7 +99,8 @@ public class GameManager : MonoBehaviour
     public void CargarClicked(){
         if (mapsCollection != null){
             Debug.Log("Cargar clicked y mapsCollection no es null.");
-            int[,] mapaCargado = mapsCollection.LoadMap(0);
+            int[,] mapaCargado;
+            mapsCollection.GetDataAt(0, out mapaCargado);
             if( mapaCargado != null){
                 for(int i = 0; i< rows; i++){
                     for(int j = 0; j< cols; j++){
@@ -114,8 +119,10 @@ public class GameManager : MonoBehaviour
     public void GuardarClicked(){
         Debug.Log("Guardar clicked.");
         // Obtener las matrices de algún lugar...
+        GuardarMapaActual();
+    }
+    private void GuardarMapaActual(){
         int[,] mapParaSalvar = new int[rows,cols];
-
         if (mapsCollection != null)
         {
             //Generamos la matriz de números para guardar
@@ -125,36 +132,52 @@ public class GameManager : MonoBehaviour
 
                     //Guardamos el tipo de baldosa
                     //tipoTesela--> 0=suelo 1=player 2=pared 3=caja 4=posicionCaja
-Debug.Log("Guardando la casilla: "+i+"-"+j+" que contiene casilla tipo: "+matrizMapa[i,j].gameObject.GetComponent<ElementoMapa>().tipoTesela);
+//Debug.Log("Guardando la casilla: "+i+"-"+j+" que contiene casilla tipo: "+matrizMapa[i,j].gameObject.GetComponent<ElementoMapa>().tipoTesela);
                     mapParaSalvar[i,j] = matrizMapa[i,j].gameObject.GetComponent<ElementoMapa>().tipoTesela;
                 }
             }
-            
-            mapsCollection.SaveMap(mapParaSalvar);
+            mapsCollection.AddNewData(mapParaSalvar);
         }
+            for (int i = 0; i < rows; i++){
+                for (int j = 0; j < cols; j++){
+                    Debug.Log("Mostrando la casilla: "+i+"-"+j+": "+mapsCollection.mapas[0].matrix[i,j]);
+                }
+            }
+
+        //Archivo donde guardaremos la información (texto plano, para más seguridad usaríamos binario pero así podemos verlo)
+        string nombreArchivo = "/MapasSokoban"+SceneManager.GetActiveScene().buildIndex+"Mapa0.txt";
+        string json = JsonUtility.ToJson(mapsCollection.mapas[0]);
+Debug.Log("El json creado: "+json+" número de elementos en la matriz: "+mapsCollection.mapas[0].matrix.Length);
+        //Guardamos la info
+
+
+        if(File.Exists(Application.persistentDataPath+nombreArchivo)){
+            Debug.Log("GuardarMapaActual(): El fichero json existe y lo voy a borrar para escribirlo de nuevo."+Application.persistentDataPath+nombreArchivo);
+            File.Delete(Application.persistentDataPath + nombreArchivo);
+        }
+        File.WriteAllText(Application.persistentDataPath +nombreArchivo,json);
     }
 
     private void ReiniciarMapa(){
-        //bestLapSO = (GhostLapData) ScriptableObject.CreateInstance(typeof(GhostLapData));
-        //currentLapSO = (GhostLapData) ScriptableObject.CreateInstance(typeof(GhostLapData));
-
-        //        mapsCollection.LoadMaps();
         mapsCollection = (MapsCollection) ScriptableObject.CreateInstance(typeof(MapsCollection));
-
-
+        mapsCollection.CreateIniMap(rows,cols);        
+        Debug.Log("Hemos creado el listado de mapas. Tenemos: "+mapsCollection.mapas.Count+" mapas.");
     }
     // Método que será llamado cuando se haga clic en un sprite
     public void OnSpriteClicked(ElementoMapa clickedElemento)
     {
         Debug.Log("Sprite clicado: " + clickedElemento.name);
         clickedElemento.gameObject.GetComponent<SpriteRenderer>().sprite = teselas[teselaSeleccionada];
-        matrizMapa[clickedElemento.GetComponent<ElementoMapa>().fila,clickedElemento.GetComponent<ElementoMapa>().columna].GetComponent<ElementoMapa>().tipoTesela 
-            = clickedElemento.GetComponent<ElementoMapa>().tipoTesela;
+        matrizMapa[clickedElemento.GetComponent<ElementoMapa>().fila , clickedElemento.GetComponent<ElementoMapa>().columna].GetComponent<ElementoMapa>().tipoTesela 
+            = teselaSeleccionada;
     }
 
     private void CargarMapa(int numMapa){
+        Debug.Log("CargarMapa. Vamos a ver si cargamos el mapa: "+numMapa);
         GameObject[,] mapaTemp = new GameObject[rows, cols];
-        int[,] mapaTiposTesela = mapsCollection.LoadMap(numMapa);
+        int[,] mapaTiposTesela;
+        mapsCollection.GetDataAt(numMapa,out mapaTiposTesela);
+        
 if(mapaTiposTesela == null){
     Debug.Log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     return;

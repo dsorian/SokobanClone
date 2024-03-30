@@ -3,42 +3,64 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/*
+
 [System.Serializable]
-public class MatrixData
+public class MapMatrix
 {
     public int[,] matrix;
     public String nombreMapa = "Nivel ?";
 
-    public MatrixData(int rows, int columns)
+    public MapMatrix(int rows, int columns)
     {
         matrix = new int[rows, columns];
     }
 }
-*/
 
 //[CreateAssetMenu(fileName = "NewMapsCollection", menuName = "Custom/MapsCollection")]
 public class MapsCollection : ScriptableObject
 {
-    public List<int[,]> mapas;
+    public List<MapMatrix> mapas;
+    public int numMapas;
 
     public MapsCollection(){
-        mapas = new List<int[,]>();
+        mapas = new List<MapMatrix>();
+        numMapas=0;
+    }
+        
+    public void CreateIniMap(int filas, int columnas){
+        Debug.Log("Creando el scriptable Object");
+        //Creamos el primer mapa todo con casillas de suelo
+        mapas = new List<MapMatrix>();
+        mapas.Add(new MapMatrix(filas,columnas));
+
+        //int[,] unMapa = new int[filas,columnas];        
+
+        for (int i = 0; i < filas ; i++ ){
+            for( int j = 0; j<columnas;j++){
+                Debug.Log("Creando una casilla del mapa inicializado, todo a 0 (suelo).");
+                mapas[0].matrix[i,j] = 0;
+            }
+        }
+        //mapas.Add(unMapa);
+        numMapas = 1;
     }
 
     public void AddNewData(int[,] elMapa){
-        mapas.Add(elMapa);
+        mapas.Add(new MapMatrix(elMapa.GetLength(0),elMapa.GetLength(1)));
+        //numMapas++;
+        mapas[numMapas].matrix= elMapa;
+        mapas[numMapas].nombreMapa = "Nivel "+numMapas;
     }
 
     public void GetDataAt(int numMapa, out int[,] elMapa){
-        elMapa = mapas[numMapa];
+        elMapa = mapas[numMapa].matrix;
     }
 
     public void Reset(){
         mapas.Clear();
     }
 
-    public void RemoveData(int[,] elMapa){
+    public void RemoveData(MapMatrix elMapa){
         mapas.Remove(elMapa);
     }
 
