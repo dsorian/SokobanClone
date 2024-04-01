@@ -14,9 +14,10 @@ public class MapMatrix
     */
     public int[] matrix;
     public int rows, cols; 
-    public String nombreMapa = "Nivel ?";
+    public String nombreMapa = "Nivel?";
+    public int numMapa;
 
-   public int[] arrayIntsPrueba = {1,2,3,4,5,6};
+    public int[] arrayIntsPrueba = {1,2,3,4,5,6};
     public int[,] matrizIntsPrueba = {{1,2,3,4},{5,6,7,8}};
 
     public MapMatrix(int rows, int cols)
@@ -31,12 +32,9 @@ public class MapMatrix
 public class MapsCollection : ScriptableObject
 {
     public List<MapMatrix> mapas;
-    public int numMapas;
  
-
     public MapsCollection(){
         mapas = new List<MapMatrix>();
-        numMapas=0;
     }
         
     public void CreateIniMap(int filas, int columnas){
@@ -53,19 +51,18 @@ public class MapsCollection : ScriptableObject
                 mapas[0].matrix[i * j + j ] = 0;
             }
         }
-        //mapas.Add(unMapa);
-        numMapas = 1;
-        mapas[0].nombreMapa="Nivel "+numMapas;
+        mapas[0].nombreMapa="Nivel "+(mapas.Count-1);
     }
 
-    public void AddNewData(int[] elMapa,int rows, int cols){
+    public int AddNewMap(int[] elMapa,int rows, int cols){
         mapas.Add(new MapMatrix(rows,cols));
-        //numMapas++;
+        int numMapas = mapas.Count-1;
         mapas[numMapas].matrix= elMapa;
         mapas[numMapas].nombreMapa = "Nivel "+numMapas;
+        return numMapas;
     }
 
-    public void GetDataAt(int numMapa, out int[] elMapa){
+    public void GetMapAt(int numMapa, out int[] elMapa){
         elMapa = mapas[numMapa].matrix;
     }
 
@@ -73,8 +70,17 @@ public class MapsCollection : ScriptableObject
         mapas.Clear();
     }
 
-    public void RemoveData(MapMatrix elMapa){
+    public void RemoveMap(MapMatrix elMapa){
         mapas.Remove(elMapa);
+    }
+
+    public List<string> GetMapsNames(){
+        List<string> mapsNames = new List<string>();
+
+        foreach (var map in mapas){
+            mapsNames.Add(map.nombreMapa);
+        }
+        return mapsNames;
     }
 
 /*
