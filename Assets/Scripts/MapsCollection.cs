@@ -17,9 +17,6 @@ public class MapMatrix
     public String nombreMapa = "Nivel?";
     public int numMapa;
 
-    public int[] arrayIntsPrueba = {1,2,3,4,5,6};
-    public int[,] matrizIntsPrueba = {{1,2,3,4},{5,6,7,8}};
-
     public MapMatrix(int rows, int cols)
     {
         matrix = new int[rows * cols];
@@ -43,17 +40,26 @@ public class MapsCollection : ScriptableObject
         mapas = new List<MapMatrix>();
         mapas.Add(new MapMatrix(filas,columnas));
 
-        //int[,] unMapa = new int[filas,columnas];        
-
         for (int i = 0; i < filas ; i++ ){
             for( int j = 0; j<columnas;j++){
-                Debug.Log("Creando una casilla del mapa inicializado, todo a 0 (suelo).");
                 mapas[0].matrix[i * j + j ] = 0;
             }
         }
         mapas[0].nombreMapa="Nivel "+(mapas.Count-1);
     }
 
+    public int CreateEmptyMap(int filas, int columnas){
+        //Creamos un mapa nuevo todo con casillas de suelo
+        mapas.Add(new MapMatrix(filas,columnas));
+
+        for (int i = 0; i < filas ; i++ ){
+            for( int j = 0; j<columnas;j++){
+                 mapas[mapas.Count-1].matrix[i * j + j ] = 0;
+            }
+        }
+        mapas[mapas.Count-1].nombreMapa="Nivel "+(mapas.Count-1);
+        return mapas.Count-1;
+    }
     public int AddNewMap(int[] elMapa,int rows, int cols){
         mapas.Add(new MapMatrix(rows,cols));
         int numMapas = mapas.Count-1;
@@ -83,62 +89,16 @@ public class MapsCollection : ScriptableObject
         return mapsNames;
     }
 
-/*
-    // Guardar la información de las matrices en el ScriptableObject
-    public void SaveMap(int[,] mapaParaSalvar){
-        mapas.Clear();
+    /*
+     *Creará los mapas de los niveles del juego
+     */
+    public void CrearMapasJuego(){
+        int[] nivel1 = {2,0,0,0,0,0,0,0,0};
+        int[] nivel2 = {3,0,0,0,0,0,0,0,0};
 
-        MatrixData newMap = new MatrixData(mapaParaSalvar.GetLength(0), mapaParaSalvar.GetLength(1)); // Crear una nueva instancia de MatrixData
-        newMap.matrix = mapaParaSalvar;
-        mapas.Add(newMap);
-
-        Debug.Log("Matrices guardadas en ScriptableObject.");
-    }
-    // Cargar la información de las matrices desde el ScriptableObject
-    public List<int[,]> LoadMaps()
-    {
-        List<int[,]> loadedMatrices = new List<int[,]>();
-
-        foreach (var matrixData in mapas)
-        {
-            loadedMatrices.Add(matrixData.matrix);
-        }
-
-        return loadedMatrices;
+        AddNewMap(nivel1,3,3);
+        AddNewMap(nivel2,3,3);
     }
 
-    public int[,] LoadMap(int index)
-    {
-        if (index >= 0 && index < mapas.Count)
-        {
-            Debug.Log("En MapsCollection.LoadMap("+index+"). Mapas que existen: "+mapas.Count);
-            for(int i=0;i<9;i++){
-                for(int j=0;j<9;j++){
-                    Debug.Log("Recorriendo el mapa. elemento: "+i+"-"+j+" contiene: "+mapas[index].matrix[i,j]);
-                }
-            }
-            return mapas[index].matrix;
-        }
-        else
-        {
-            Debug.LogWarning("Índice de mapa fuera de rango.");
-            return null;
-        }
-    }
-
-    // Elimina una matriz de la colección por su índice
-    public void RemoveMap(int index)
-    {
-        if (index >= 0 && index < mapas.Count)
-        {
-            mapas.RemoveAt(index);
-            Debug.Log("Mapa eliminado.");
-        }
-        else
-        {
-            Debug.LogWarning("Índice de mapa fuera de rango.");
-        }
-    }
-*/
 }
 

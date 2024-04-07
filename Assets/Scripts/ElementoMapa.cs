@@ -20,6 +20,6 @@ public class ElementoMapa : MonoBehaviour
     }
 
     void OnMouseDown(){
-        Debug.Log("Me has clickado, soy la casilla: "+fila+"-"+columna);
+
     }
 }

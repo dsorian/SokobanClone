@@ -122,10 +122,21 @@ public class GameManager : MonoBehaviour
         }
     }
     public void GuardarClicked(){
-        Debug.Log("Guardar clicked.");
+        Debug.Log("Guardar clicked. Deberemos guardar el mapa actual ");
         // Obtener las matrices de algún lugar...
         GuardarMapaActual();
     }
+
+    //Creamos un nuevo mapa con todo suelo y lo añadimos al listado.
+    public void NuevoMapaClicked(){
+        Debug.Log("Hemos pulsado nuevo. Deberemos crear un nuevo mapa y añadirlo al listado.");
+        int numMapa = mapsCollection.CreateEmptyMap(rows,cols);
+Debug.Log("Hemos creado el mapa número: "+numMapa);        
+        elDropdown.gameObject.GetComponent<TMP_Dropdown>().ClearOptions();
+        elDropdown.gameObject.GetComponent<TMP_Dropdown>().AddOptions(mapsCollection.GetMapsNames());
+        elDropdown.gameObject.GetComponent<TMP_Dropdown>().value = mapsCollection.mapas.Count;
+    }
+
     private void GuardarMapaActual(){
         int[] mapParaSalvar = new int[rows*cols+cols];
         if (mapsCollection != null)
@@ -137,8 +148,6 @@ public class GameManager : MonoBehaviour
 
                     //Guardamos el tipo de baldosa
                     //tipoTesela--> 0=suelo 1=player 2=pared 3=caja 4=posicionCaja
-if(matrizMapa[i*j+j].gameObject.GetComponent<ElementoMapa>().tipoTesela != 0)
-    Debug.Log("Guardando la casilla de no suelo: "+i+"-"+j+" que contiene casilla tipo: "+matrizMapa[i*j+j].gameObject.GetComponent<ElementoMapa>().tipoTesela);
                     mapParaSalvar[i*j+j] = matrizMapa[i*j+j].gameObject.GetComponent<ElementoMapa>().tipoTesela;
                 }
             }
@@ -172,34 +181,41 @@ Debug.Log("El json creado: "+json+" número de elementos en la matriz: "+mapsCol
     {
         int fila = clickedElemento.GetComponent<ElementoMapa>().fila;
         int columna = clickedElemento.GetComponent<ElementoMapa>().columna;
-        Debug.Log("Sprite clicado: " + clickedElemento.name);
+        Debug.Log("Sprite clicado: "+ fila+"-"+columna+", tenía casilla: " + clickedElemento.GetComponent<ElementoMapa>().tipoTesela+" Cambiaré: "+(fila*columna+columna));
         clickedElemento.gameObject.GetComponent<SpriteRenderer>().sprite = teselas[teselaSeleccionada];
-        matrizMapa[fila * columna + columna].GetComponent<ElementoMapa>().tipoTesela 
-            = teselaSeleccionada;
+        //matrizMapa[fila * columna + columna].gameObject.GetComponent<SpriteRenderer>().sprite = teselas[teselaSeleccionada];
+        clickedElemento.GetComponent<ElementoMapa>().tipoTesela = teselaSeleccionada;
+        Debug.Log("Sprite clicado: "+ fila+"-"+columna+", ahora tiene casilla: " + clickedElemento.GetComponent<ElementoMapa>().tipoTesela);
     }
 
     private void CargarMapa(int numMapa){
         Debug.Log("CargarMapa. Vamos a ver si cargamos el mapa: "+numMapa+". Mapas cargados: "+mapsCollection.mapas.Count);
-//        GameObject[,] mapaTemp = new GameObject[rows, cols];
-        int[] mapaTiposTesela;
-        mapsCollection.GetMapAt(numMapa,out mapaTiposTesela);
-Debug.Log("Cargadas: "+ mapaTiposTesela.Length+" teselas.");
+        int[] mapaTiposTeselaTemp;
+        //Cogemos los datos de las casillas del mapa en cuestión
+        mapsCollection.GetMapAt(numMapa,out mapaTiposTeselaTemp);
         // Crear y posicionar los sprites
         for (int i = 0; i < rows; i++)
         {
             for (int j = 0; j < cols; j++)
             {
                 // Instanciar el spritePrefab como un GameObject
+                /*
                 GameObject newSprite = Instantiate(elementoMapaPrefab, posMapa.transform);
                 newSprite.gameObject.GetComponent<ElementoMapa>().fila = i;
                 newSprite.gameObject.GetComponent<ElementoMapa>().columna = j;
-                newSprite.gameObject.GetComponent<ElementoMapa>().tipoTesela = mapaTiposTesela[i*j+j];
+                newSprite.gameObject.GetComponent<ElementoMapa>().tipoTesela = mapaTiposTeselaTemp[i*j+j];
+                newSprite.gameObject.GetComponent<SpriteRenderer>().sprite = teselas[mapaTiposTeselaTemp[i*j+j]];
 
                 // Posicionar el sprite en la matriz
                 newSprite.transform.localPosition = new Vector3(i, j, 0);
-
                 // Guardar el sprite en la matriz de GameObjects
+
                 matrizMapa[i * j + j] = newSprite;
+*/
+                matrizMapa[i * j + j].gameObject.GetComponent<ElementoMapa>().fila = i;
+                matrizMapa[i * j + j].gameObject.GetComponent<ElementoMapa>().columna = j;
+                matrizMapa[i * j + j].gameObject.GetComponent<ElementoMapa>().tipoTesela = mapaTiposTeselaTemp[i*j+j];
+                matrizMapa[i * j + j].gameObject.GetComponent<SpriteRenderer>().sprite = teselas[mapaTiposTeselaTemp[i*j+j]];
             }
         }
     }
@@ -208,26 +224,38 @@ Debug.Log("Cargadas: "+ mapaTiposTesela.Length+" teselas.");
     //y tenerlos en el scriptable object para poder seleccionarlos.
     private void CargarMapas(){
         Debug.Log("CargarMapas(). Pendiente, cargar todos los mapas más los creados por el jugador y mostrarlos en el dropdown");
-        elDropdown.options[0].text="hola";
-        elDropdown.options[1].text="¿cómo";
-        elDropdown.options[2].text="estás?";
+        mapsCollection.CrearMapasJuego();
+        //Inicializamos la matriz de casillas
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                GameObject newSprite = Instantiate(elementoMapaPrefab, posMapa.transform);
+                newSprite.gameObject.GetComponent<ElementoMapa>().fila = i;
+                newSprite.gameObject.GetComponent<ElementoMapa>().columna = j;
+                newSprite.gameObject.GetComponent<ElementoMapa>().tipoTesela = 0;
+                newSprite.gameObject.GetComponent<SpriteRenderer>().sprite = teselas[0];
+
+                // Posicionar el sprite en la matriz. La rotamos en sentido horario para que coincida  rotatedMatrix[j, n - 1 - i] = matrix[i, j];
+                //newSprite.transform.localPosition = new Vector3(i, j, 0);
+                newSprite.transform.localPosition = new Vector3(j, rows-1-i, 0);
+                // Guardar el sprite en la matriz de GameObjects
+                matrizMapa[i * j + j] = newSprite;
+            }
+        }
+        elDropdown.gameObject.GetComponent<TMP_Dropdown>().ClearOptions();
+        elDropdown.gameObject.GetComponent<TMP_Dropdown>().AddOptions(mapsCollection.GetMapsNames());
+
+        Debug.Log("FALTA BUSCAR LOS MAPAS GUARDADOS Y CARGARLOS.");
     }
 
     // Método que se llamará cuando cambie la opción seleccionada del dropdown
     public void OnDropdownValueChanged()
-    {
-                //Cogemos los nombres de los mapas y escucharemos cuando se cambie la opción seleccionada.
-        // Agregar un listener al evento onValueChanged
-//        elDropdown.gameObject.GetComponent<Dropdown>().onValueChanged.AddListener(OnDropdownValueChanged);
-        
-//        elDropdown.gameObject.GetComponent<Dropdown>().ClearOptions();
-//        elDropdown.gameObject.GetComponent<Dropdown>().AddOptions(mapsCollection.GetMapsNames());
-
-        
-
-        // Aquí puedes manejar la lógica basada en la opción seleccionada
+    {      
+        //Al seleccionar un mapa lo cargamos
         Debug.Log("Opción seleccionada: "+elDropdown.value);
-
+        CargarMapa(elDropdown.value);
+        mapaActual=elDropdown.value;
     }
 
 }
