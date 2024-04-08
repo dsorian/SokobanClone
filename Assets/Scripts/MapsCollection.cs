@@ -29,6 +29,8 @@ public class MapMatrix
 public class MapsCollection : ScriptableObject
 {
     public List<MapMatrix> mapas;
+
+    public int filas, columnas;
  
     public MapsCollection(){
         mapas = new List<MapMatrix>();
@@ -42,10 +44,12 @@ public class MapsCollection : ScriptableObject
 
         for (int i = 0; i < filas ; i++ ){
             for( int j = 0; j<columnas;j++){
-                mapas[0].matrix[i * j + j ] = 0;
+                mapas[0].matrix[i * this.columnas + j ] = 0;
             }
         }
         mapas[0].nombreMapa="Nivel "+(mapas.Count-1);
+        this.filas = filas;
+        this.columnas = columnas;
     }
 
     public int CreateEmptyMap(int filas, int columnas){
@@ -54,7 +58,7 @@ public class MapsCollection : ScriptableObject
 
         for (int i = 0; i < filas ; i++ ){
             for( int j = 0; j<columnas;j++){
-                 mapas[mapas.Count-1].matrix[i * j + j ] = 0;
+                 mapas[mapas.Count-1].matrix[i * this.columnas + j ] = 0;
             }
         }
         mapas[mapas.Count-1].nombreMapa="Nivel "+(mapas.Count-1);
@@ -69,6 +73,7 @@ public class MapsCollection : ScriptableObject
     }
 
     public void GetMapAt(int numMapa, out int[] elMapa){
+        Debug.Log("Voy a devolver el mapa número: "+numMapa);
         elMapa = mapas[numMapa].matrix;
     }
 
@@ -93,11 +98,21 @@ public class MapsCollection : ScriptableObject
      *Creará los mapas de los niveles del juego
      */
     public void CrearMapasJuego(){
-        int[] nivel1 = {2,0,0,0,0,0,0,0,0};
-        int[] nivel2 = {3,0,0,0,0,0,0,0,0};
+        /*
+        int[] nivel1 = {0,0,0,0,1,0,0,0,0};
+        int[] nivel2 = {0,0,0,0,2,0,0,0,0};
+        int[] nivel3 = {0,0,0,0,3,0,0,0,0};
+        int[] nivel4 = {0,0,0,0,4,0,0,0,0};
+        */
+        int[] nivel1 = {1,0,0,0,2,3,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        int[] nivel2 = {1,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        int[] nivel3 = {1,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        int[] nivel4 = {1,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
         AddNewMap(nivel1,3,3);
         AddNewMap(nivel2,3,3);
+        AddNewMap(nivel3,3,3);
+        AddNewMap(nivel4,3,3);
     }
 
 }
