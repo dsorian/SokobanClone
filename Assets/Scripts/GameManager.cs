@@ -10,6 +10,7 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
+    private int modoJuego=0;    //0=jugar   1=Diseñar nivel
     public GameObject laCamara;
     public GameObject[] matrizMapa;    //Matriz con las figuras que conforman el mapa
 
@@ -51,7 +52,7 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        /*
+        
         // Click izquierdo del ratón pulsado
         if (Input.GetMouseButtonDown(0))
         {
@@ -73,7 +74,7 @@ public class GameManager : MonoBehaviour
             }else
                 Debug.Log("no ha funcionado el raycast");
         }
-*/
+
         if (Input.GetKeyUp(KeyCode.Alpha1)){
             Debug.Log("Has pulsado 1. Cargamos el mapa 1");
             JugarMapa(1);
@@ -247,24 +248,27 @@ Debug.Log("KK: Cargando mapa: "+numMapa+" celda: "+i+"-"+j+" Tiene: "+matrizMapa
         Debug.Log("CargarMapas(). Pendiente, cargar todos los mapas más los creados por el jugador y mostrarlos en el dropdown");
         mapsCollection.CrearMapasJuego();
         //Inicializamos la matriz de casillas
-/*CREO QUE ESTO YA NO HARÁ FALTA
-        for (int i = 0; i < rows; i++)
-        {
-            for (int j = 0; j < cols; j++)
+/*CREO QUE ESTO YA NO HARÁ FALTA*/
+        if( modoJuego == 1 ){ //Diseñar nivel
+Debug.Log("kaka");        
+            for (int i = 0; i < rows; i++)
             {
-                GameObject newSprite = Instantiate(elementoMapaPrefab, posMapa.transform);
-                newSprite.gameObject.GetComponent<ElementoMapa>().fila = i;
-                newSprite.gameObject.GetComponent<ElementoMapa>().columna = j;
-                newSprite.gameObject.GetComponent<ElementoMapa>().tipoTesela = 0;
-                newSprite.gameObject.GetComponent<SpriteRenderer>().sprite = teselasDisponibles[0];
+                for (int j = 0; j < cols; j++)
+                {
+                    GameObject newSprite = Instantiate(elementoMapaPrefab, posMapa.transform);
+                    newSprite.gameObject.GetComponent<ElementoMapa>().fila = i;
+                    newSprite.gameObject.GetComponent<ElementoMapa>().columna = j;
+                    newSprite.gameObject.GetComponent<ElementoMapa>().tipoTesela = 0;
+                    newSprite.gameObject.GetComponent<SpriteRenderer>().sprite = teselasDisponibles[0];
 
-                newSprite.transform.localPosition = new Vector3(i, j, 0);
-                
-                // Guardar el sprite en la matriz de GameObjects
-                matrizMapa[i * cols + j] = newSprite;
+                    newSprite.transform.localPosition = new Vector3(i, j, 0);
+                    
+                    // Guardar el sprite en la matriz de GameObjects
+                    matrizMapa[i * cols + j] = newSprite;
+                }
             }
         }
-*/        
+/**/        
         elDropdown.gameObject.GetComponent<TMP_Dropdown>().ClearOptions();
         elDropdown.gameObject.GetComponent<TMP_Dropdown>().AddOptions(mapsCollection.GetMapsNames());
 
@@ -320,7 +324,7 @@ Debug.Log("MOSTRANDO MAPA A JUGAR: "+numMapa);
                         break;
                     case 4:
                         casilla = Instantiate(laPosCaja, posMapa.transform);
-                        casilla.transform.localPosition = new Vector3(i, j, 0);
+                        casilla.transform.localPosition = new Vector3(i, j, 0.1f);
                         break;
                 }
                 //matrizMapa[i*cols+j] = elPlayer;
@@ -346,6 +350,7 @@ Debug.Log("MOSTRANDO MAPA A JUGAR: "+numMapa);
 
     public void Jugar(int numMapa){
         Debug.Log("Jugar. A jugar!");
+        modoJuego=0;
         juegoPausado = false;
         JugarMapa(1);
 //        Instantiate(elPlayer);
@@ -355,9 +360,11 @@ Debug.Log("MOSTRANDO MAPA A JUGAR: "+numMapa);
 
     public void EditarNiveles(){
         Debug.Log("EditarNiveles. A editar niveles!");
+        modoJuego=1;
         juegoPausado = false;
         pantallaPausa.SetActive(false);
         pantallaEditorNiveles.SetActive(true);
+        CargarMapas();
     }
 
     private void PausarJuego()
