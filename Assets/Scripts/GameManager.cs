@@ -52,7 +52,16 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        
+
+        if( modoJuego == 11 ){
+            // Obtener la posición del puntero del ratón en el espacio de la pantalla
+            Vector2 mousePositionScreen = Input.mousePosition;
+
+            laCamara.transform.position = mousePositionScreen;
+Debug.Log("trasteando con la cámara en edición");
+
+        }
+
         // Click izquierdo del ratón pulsado
         if (Input.GetMouseButtonDown(0))
         {
@@ -248,9 +257,8 @@ Debug.Log("KK: Cargando mapa: "+numMapa+" celda: "+i+"-"+j+" Tiene: "+matrizMapa
         Debug.Log("CargarMapas(). Pendiente, cargar todos los mapas más los creados por el jugador y mostrarlos en el dropdown");
         mapsCollection.CrearMapasJuego();
         //Inicializamos la matriz de casillas
-/*CREO QUE ESTO YA NO HARÁ FALTA*/
+
         if( modoJuego == 1 ){ //Diseñar nivel
-Debug.Log("kaka");        
             for (int i = 0; i < rows; i++)
             {
                 for (int j = 0; j < cols; j++)
@@ -268,7 +276,7 @@ Debug.Log("kaka");
                 }
             }
         }
-/**/        
+
         elDropdown.gameObject.GetComponent<TMP_Dropdown>().ClearOptions();
         elDropdown.gameObject.GetComponent<TMP_Dropdown>().AddOptions(mapsCollection.GetMapsNames());
 

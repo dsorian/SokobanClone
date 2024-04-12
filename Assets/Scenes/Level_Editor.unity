@@ -3513,7 +3513,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -4.81, y: -3.65, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -4177,8 +4177,8 @@ MonoBehaviour:
   elMuro: {fileID: 2935608626314623325, guid: 2fb4a95c9d1f6ae4daf0bc75a335f18e, type: 3}
   laCaja: {fileID: 2935608626314623325, guid: a9cf6986a9b32d644aebf8500ca81cb3, type: 3}
   laPosCaja: {fileID: 2935608626314623325, guid: 3d4adaf6eec359844b5c8d823c671d3f, type: 3}
-  rows: 10
-  cols: 10
+  rows: 20
+  cols: 20
   elementoMapaPrefab: {fileID: 2935608626314623325, guid: f01d9d856377fe9489304df7493653f4, type: 3}
   posMapa: {fileID: 1388269943}
   teselasDisponibles:
