@@ -11,16 +11,19 @@ public class CameraManager : MonoBehaviour
 
     void FixedUpdate()
     {
+        Vector3 desiredPosition;
         if (target != null)
         {
             // Calcula la posición objetivo de la cámara sumando el desplazamiento al jugador
-            Vector3 desiredPosition = target.position + offset;
+            desiredPosition = target.position + offset;
+        }else{
+            desiredPosition = Input.mousePosition;
+        }
 
-            // Interpola suavemente entre la posición actual de la cámara y la posición objetivo
+                    // Interpola suavemente entre la posición actual de la cámara y la posición objetivo
             Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
 
             // Actualiza la posición de la cámara
             transform.position = smoothedPosition;
-        }
     }
 }
