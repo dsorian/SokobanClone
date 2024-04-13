@@ -8,7 +8,7 @@ using UnityEngine.Scripting.APIUpdating;
 public class Player : MonoBehaviour
 {
 
-    private float moveSpeed = 0.1f;
+    private float moveSpeed = 0.05f;
     private Rigidbody2D rb;
     private Vector2 movementDirection;
 

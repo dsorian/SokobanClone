@@ -6,6 +6,9 @@ using UnityEngine.Android;
 public class Caja : MonoBehaviour
 {
     public Sprite spriteNormal,spriteColocada;
+    public GameManager elGameManager;
+
+    public bool estoyColocada=false;  //True=la caja está colocada en casilla de destino False=no lo está
 
     // Start is called before the first frame update
     void Start()
@@ -20,16 +23,17 @@ public class Caja : MonoBehaviour
     }
 
     void OnTriggerEnter2D(Collider2D other){
-        Debug.Log("Soy: "+this.name+" me ha colisionado: "+other.name);
         if( other.tag == "PosCaja"){
             gameObject.GetComponent<SpriteRenderer>().sprite = spriteColocada;
+            estoyColocada=true;
+            elGameManager.CajaColocada();
         }
     }
 
     void OnTriggerExit2D(Collider2D other){
-        Debug.Log("Soy: "+this.name+" he salido de: "+other.name);
         if( other.tag == "PosCaja"){
             gameObject.GetComponent<SpriteRenderer>().sprite = spriteNormal;
+            estoyColocada=false;
         }
     }
 }

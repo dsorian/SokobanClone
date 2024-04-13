@@ -35,6 +35,10 @@ public class GameManager : MonoBehaviour
     private int mapaActual = 0;    //Mapa mostrado actualmente.
     private bool juegoPausado = true;
 
+    //Para el desarrollo del juego
+    int numCajas;
+    private List<Caja> listaCajas;
+
 
 
     // Start is called before the first frame update
@@ -53,13 +57,24 @@ public class GameManager : MonoBehaviour
     void Update()
     {
 
-        if( modoJuego == 11 ){
-            // Obtener la posición del puntero del ratón en el espacio de la pantalla
-            Vector2 mousePositionScreen = Input.mousePosition;
-
-            laCamara.transform.position = mousePositionScreen;
-Debug.Log("trasteando con la cámara en edición");
-
+        if( modoJuego == 1 ){
+            //Modo de edición, movemos el mapa si no cabe en la pantalla con WASD
+            if (Input.GetKeyUp(KeyCode.W)){
+                //posMapa.transform.position = new Vector3();  
+                posMapa.transform.Translate(0,1,0);
+            }
+            if (Input.GetKeyUp(KeyCode.S)){
+                //posMapa.transform.position = new Vector3();  
+                posMapa.transform.Translate(0,-1,0);
+            }
+            if (Input.GetKeyUp(KeyCode.A)){
+                //posMapa.transform.position = new Vector3();  
+                posMapa.transform.Translate(-1,0,0);
+            }
+            if (Input.GetKeyUp(KeyCode.D)){
+                //posMapa.transform.position = new Vector3();  
+                posMapa.transform.Translate(1,0,0);
+            }
         }
 
         // Click izquierdo del ratón pulsado
@@ -84,9 +99,10 @@ Debug.Log("trasteando con la cámara en edición");
                 Debug.Log("no ha funcionado el raycast");
         }
 
-        if (Input.GetKeyUp(KeyCode.Alpha1)){
-            Debug.Log("Has pulsado 1. Cargamos el mapa 1");
-            JugarMapa(1);
+        if (Input.GetKeyUp(KeyCode.Alpha2)){
+            Debug.Log("Has pulsado 2. Cargamos el mapa 2");
+            ReiniciarNivel();
+            JugarMapa(2);
         }
 
         if (Input.GetKeyUp(KeyCode.Escape)){
@@ -242,7 +258,6 @@ Debug.Log("El json creado: "+json+" número de elementos en la matriz: "+mapsCol
 
                 matrizMapa[i * cols + j] = newSprite;
 */
-Debug.Log("KK: Cargando mapa: "+numMapa+" celda: "+i+"-"+j+" Tiene: "+matrizMapa[i * cols + j].gameObject.GetComponent<ElementoMapa>().tipoTesela);
                 matrizMapa[i * cols + j].gameObject.GetComponent<ElementoMapa>().fila = i;
                 matrizMapa[i * cols + j].gameObject.GetComponent<ElementoMapa>().columna = j;
                 matrizMapa[i * cols + j].gameObject.GetComponent<ElementoMapa>().tipoTesela = mapaTiposTeselaTemp[i*cols+j];
@@ -288,14 +303,8 @@ Debug.Log("KK: Cargando mapa: "+numMapa+" celda: "+i+"-"+j+" Tiene: "+matrizMapa
         int[] mapaTiposTeselaTemp;
         //Cogemos los datos de las casillas del mapa en cuestión
         mapsCollection.GetMapAt(numMapa,out mapaTiposTeselaTemp);
-Debug.Log("MOSTRANDO MAPA A JUGAR: "+numMapa);
-        for (int i = 0; i < rows; i++)
-        {
-            for (int j = 0; j < cols; j++)
-            {
-                Debug.Log("Casilla: "+i+"-"+j+" tiene: "+ mapaTiposTeselaTemp[i*cols+j]);
-            }
-        }
+
+        listaCajas = new List<Caja>();
         // Crear y posicionar los prefabs
         for (int i = 0; i < rows; i++)
         {
@@ -324,7 +333,10 @@ Debug.Log("MOSTRANDO MAPA A JUGAR: "+numMapa);
                         break;
                     case 3: 
                         casilla = Instantiate(laCaja, posMapa.transform);
+                        numCajas++;
                         casilla.transform.localPosition = new Vector3(i, j, 0);
+                        casilla.GetComponent<Caja>().elGameManager = this;
+                        listaCajas.Add(casilla.GetComponent<Caja>());
                         //Creamos la casilla suelo "debajo" de la actual para que se vea cuando se mueva
                         casilla2 = Instantiate(elSuelo, posMapa.transform);
                         casilla2.transform.localPosition = new Vector3(i, j, 0.1f);
@@ -335,14 +347,6 @@ Debug.Log("MOSTRANDO MAPA A JUGAR: "+numMapa);
                         casilla.transform.localPosition = new Vector3(i, j, 0.1f);
                         break;
                 }
-                //matrizMapa[i*cols+j] = elPlayer;
-
-/*
-                matrizMapa[i * cols + j].gameObject.GetComponent<ElementoMapa>().fila = i;
-                matrizMapa[i * cols + j].gameObject.GetComponent<ElementoMapa>().columna = j;
-                matrizMapa[i * cols + j].gameObject.GetComponent<ElementoMapa>().tipoTesela = mapaTiposTeselaTemp[i*cols+j];
-                matrizMapa[i * cols + j].gameObject.GetComponent<SpriteRenderer>().sprite = teselasDisponibles[mapaTiposTeselaTemp[i*cols+j]];
-*/                
             }
         }
     }
@@ -360,7 +364,8 @@ Debug.Log("MOSTRANDO MAPA A JUGAR: "+numMapa);
         Debug.Log("Jugar. A jugar!");
         modoJuego=0;
         juegoPausado = false;
-        JugarMapa(1);
+        mapaActual=1;
+        JugarMapa(mapaActual);
 //        Instantiate(elPlayer);
         elPlayer.transform.position = new Vector3(0, 0);
         pantallaPausa.SetActive(juegoPausado);
@@ -384,6 +389,36 @@ Debug.Log("MOSTRANDO MAPA A JUGAR: "+numMapa);
         }
         AudioListener.pause = juegoPausado;
         pantallaPausa.SetActive(juegoPausado);
+    }
+
+    public void CajaColocada(){
+        int totalColocadas = ContarColocadas();
+        if( totalColocadas == numCajas){
+            Debug.Log("Cargando siguiente mapa.");
+            ReiniciarNivel();
+            mapaActual++;
+            JugarMapa(mapaActual);
+        }
+    }
+
+    public int ContarColocadas(){
+        int cuantas=0;
+        foreach( Caja unaCaja in listaCajas){
+            if(unaCaja.estoyColocada == true)
+                cuantas++;
+        }
+        return cuantas;
+    }
+
+    private void ReiniciarNivel(){
+        numCajas=0;
+        laCamara.transform.SetParent(null);
+        foreach (Transform child in posMapa.transform)
+        {
+Debug.Log("Destruyendo a: "+child.name);            
+            // Destruir cada hijo
+            Destroy(child.gameObject);
+        }
     }
 
 }
