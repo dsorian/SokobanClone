@@ -10,6 +10,7 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
+    MapMatrix mapaTemp;   //Para ir cargando los mapas
     private int modoJuego=0;    //0=jugar   1=Diseñar nivel
     public GameObject laCamara;
     public GameObject[] matrizMapa;    //Matriz con las figuras que conforman el mapa
@@ -29,8 +30,10 @@ public class GameManager : MonoBehaviour
 
     public GameObject pantallaPausa;
     public GameObject pantallaEditorNiveles;
+    public GameObject pantallaJugar;
+    public GameObject pantallaFinJuego;
 
-    private MapsCollection mapsCollection; //Referencia al scriptableObject que guardará los mapas del juego.
+    private MapsCollection lamapsCollection; //Referencia al scriptableObject que guardará los mapas del juego.
 
     private int mapaActual = 0;    //Mapa mostrado actualmente.
     private bool juegoPausado = true;
@@ -47,10 +50,6 @@ public class GameManager : MonoBehaviour
         matrizMapa = new GameObject[rows*cols];
         //Cargamos los mapas guardados 
         ReiniciarMapa();
-
-        CargarMapas();
-    
-      //  PausarJuego();
 
     }
 
@@ -95,27 +94,19 @@ public class GameManager : MonoBehaviour
                     // Llamar al método OnSpriteClicked con el objeto clicado como argumento
                     OnSpriteClicked(clickedObject);
                 }
-            }else
-                Debug.Log("no ha funcionado el raycast");
-        }
-
-        if (Input.GetKeyUp(KeyCode.Alpha2)){
-            Debug.Log("Has pulsado 2. Cargamos el mapa 2");
-            ReiniciarNivel();
-            JugarMapa(2);
-        }
-
-        if (Input.GetKeyUp(KeyCode.Escape)){
-            if( !juegoPausado){
-                juegoPausado = !juegoPausado;
-                PausarJuego();
             }
         }
 
+        if (Input.GetKeyUp(KeyCode.Escape)){
+            PausarJuego();
+        }
+        if (Input.GetKeyUp(KeyCode.Alpha7)){
+            mapaActual=7;
+
+        }
     }
 
     public void SueloClicked(){
-        Debug.Log("Suelo clicked.");
         teselaSeleccionada=0;
     }
 
@@ -139,33 +130,6 @@ public class GameManager : MonoBehaviour
         teselaSeleccionada=4;
     }
 
-    public void CargarClicked(){
-        Debug.Log("CargarClicked. Borrar porque ya no se usa.");
-       /*
-        if (mapsCollection != null){
-            Debug.Log("Cargar clicked y mapsCollection no es null.");
-
- //En lugar de todo esto, sólo habría que cambiar mapaActual al número que toque. 
- //mapaActual lo obtendremos del dropdown list y chinpun.
-
-            int[] mapaCargado;
-            mapsCollection.GetMapAt(elDropdown.gameObject.GetComponent<TMP_Dropdown>().value, out mapaCargado);
-            if( mapaCargado != null){
-                for(int i = 0; i< rows; i++){
-                    for(int j = 0; j< cols; j++){
-                        Debug.Log("Se ha cargado el mapa. Elmento: "+i+"-"+j+" Contiene: "+mapaCargado[i*cols+j]);
-                        matrizMapa[i*cols+j].gameObject.GetComponent<ElementoMapa>().tipoTesela = mapaCargado[i*cols+j];
-                    }
-                }
-            }
-            else{
-                Debug.Log("Error al cargar el mapa. mapsCollection no es null pero LoadMap ha devuelto null.");
-            }
-        }else{
-            Debug.Log("Error al cargar. mapsCollection es null");
-        }
-        */
-    }
     public void GuardarClicked(){
         Debug.Log("Guardar clicked. Deberemos guardar el mapa actual ");
         // Obtener las matrices de algún lugar...
@@ -175,16 +139,21 @@ public class GameManager : MonoBehaviour
     //Creamos un nuevo mapa con todo suelo y lo añadimos al listado.
     public void NuevoMapaClicked(){
         Debug.Log("Hemos pulsado nuevo. Deberemos crear un nuevo mapa y añadirlo al listado.");
-        int numMapa = mapsCollection.CreateEmptyMap(rows,cols);
+        int numMapa = lamapsCollection.CreateEmptyMap(rows,cols);
 Debug.Log("Hemos creado el mapa número: "+numMapa);        
         elDropdown.gameObject.GetComponent<TMP_Dropdown>().ClearOptions();
-        elDropdown.gameObject.GetComponent<TMP_Dropdown>().AddOptions(mapsCollection.GetMapsNames());
-        elDropdown.gameObject.GetComponent<TMP_Dropdown>().value = mapsCollection.mapas.Count;
+        elDropdown.gameObject.GetComponent<TMP_Dropdown>().AddOptions(lamapsCollection.GetMapsNames());
+        elDropdown.gameObject.GetComponent<TMP_Dropdown>().value = lamapsCollection.mapas.Count;
+    }
+
+    public void ReiniciarNivelClicked(){
+        ReiniciarNivel();
+        JugarMapa(mapaActual);
     }
 
     private void GuardarMapaActual(){
         int[] mapParaSalvar = new int[rows*cols+cols];
-        if (mapsCollection != null)
+        if (lamapsCollection != null)
         {
             //Generamos la matriz de números para guardar
             // Crear y posicionar los sprites
@@ -197,14 +166,14 @@ Debug.Log("Hemos creado el mapa número: "+numMapa);
                 }
             }
             //mapaActual = mapsCollection.AddNewMap(mapParaSalvar,rows,cols);
-            mapsCollection.mapas[mapaActual].matrix = mapParaSalvar;
-            Debug.Log("Mapa guardado. Faltaría actualizar droplist con el nombre del nuevo mapa. mapaActual:"+mapaActual+" número de mapas: "+mapsCollection.mapas.Count);
+            lamapsCollection.mapas[mapaActual].matrix = mapParaSalvar;
+            Debug.Log("Mapa guardado. Faltaría actualizar droplist con el nombre del nuevo mapa. mapaActual:"+mapaActual+" número de mapas: "+lamapsCollection.mapas.Count);
         }
 
         //Archivo donde guardaremos la información (texto plano, para más seguridad usaríamos binario pero así podemos verlo)
         string nombreArchivo = "/MapasSokoban"+SceneManager.GetActiveScene().buildIndex+"Mapa"+mapaActual+".txt";
-        string json = JsonUtility.ToJson(mapsCollection.mapas[mapaActual]);
-Debug.Log("El json creado: "+json+" número de elementos en la matriz: "+mapsCollection.mapas[mapaActual].matrix.Length);
+        string json = JsonUtility.ToJson(lamapsCollection.mapas[mapaActual]);
+Debug.Log("El json creado: "+json+" número de elementos en la matriz: "+lamapsCollection.mapas[mapaActual].matrix.Length);
         //Guardamos la info
 
 
@@ -216,9 +185,9 @@ Debug.Log("El json creado: "+json+" número de elementos en la matriz: "+mapsCol
     }
 
     private void ReiniciarMapa(){
-        mapsCollection = (MapsCollection) ScriptableObject.CreateInstance(typeof(MapsCollection));
-        mapsCollection.CreateIniMap(rows,cols);
-        Debug.Log("Hemos creado el listado de mapas. Tenemos: "+mapsCollection.mapas.Count+" mapas.");
+        lamapsCollection = (MapsCollection) ScriptableObject.CreateInstance(typeof(MapsCollection));
+        lamapsCollection.CreateIniMap(rows,cols);
+        Debug.Log("Hemos creado el listado de mapas. Tenemos: "+lamapsCollection.mapas.Count+" mapas.");
     }
 
     // Método que será llamado cuando se haga clic en un sprite
@@ -226,38 +195,24 @@ Debug.Log("El json creado: "+json+" número de elementos en la matriz: "+mapsCol
     {
         int fila = clickedElemento.GetComponent<ElementoMapa>().fila;
         int columna = clickedElemento.GetComponent<ElementoMapa>().columna;
-        Debug.Log("Sprite clicado: "+ fila+"-"+columna+", tenía casilla: " + clickedElemento.GetComponent<ElementoMapa>().tipoTesela+" Cambiaré: "+(fila*columna+columna));
+//        Debug.Log("Sprite clicado: "+ fila+"-"+columna+", tenía casilla: " + clickedElemento.GetComponent<ElementoMapa>().tipoTesela+" Cambiaré: "+(fila*columna+columna));
         clickedElemento.gameObject.GetComponent<SpriteRenderer>().sprite = teselasDisponibles[teselaSeleccionada];
         //matrizMapa[fila * columna + columna].gameObject.GetComponent<SpriteRenderer>().sprite = teselas[teselaSeleccionada];
         clickedElemento.GetComponent<ElementoMapa>().tipoTesela = teselaSeleccionada;
-        Debug.Log("Sprite clicado: "+ fila+"-"+columna+", ahora tiene casilla: " + clickedElemento.GetComponent<ElementoMapa>().tipoTesela);
+//        Debug.Log("Sprite clicado: "+ fila+"-"+columna+", ahora tiene casilla: " + clickedElemento.GetComponent<ElementoMapa>().tipoTesela);
     }
 
     private void CargarMapa(int numMapa){
-        Debug.Log("CargarMapa. Vamos a ver si cargamos el mapa: "+numMapa+". Mapas cargados: "+mapsCollection.mapas.Count);
+        Debug.Log("CargarMapa. Vamos a ver si cargamos el mapa: "+numMapa+". Mapas cargados: "+lamapsCollection.mapas.Count);
         int[] mapaTiposTeselaTemp;
         //Cogemos los datos de las casillas del mapa en cuestión
-        mapsCollection.GetMapAt(numMapa,out mapaTiposTeselaTemp);
+        lamapsCollection.GetMapAt(numMapa,out mapaTiposTeselaTemp);
 
         // Crear y posicionar los sprites
         for (int i = 0; i < rows; i++)
         {
             for (int j = 0; j < cols; j++)
             {
-                // Instanciar el spritePrefab como un GameObject
-                /*
-                GameObject newSprite = Instantiate(elementoMapaPrefab, posMapa.transform);
-                newSprite.gameObject.GetComponent<ElementoMapa>().fila = i;
-                newSprite.gameObject.GetComponent<ElementoMapa>().columna = j;
-                newSprite.gameObject.GetComponent<ElementoMapa>().tipoTesela = mapaTiposTeselaTemp[i*cols+j];
-                newSprite.gameObject.GetComponent<SpriteRenderer>().sprite = teselas[mapaTiposTeselaTemp[i*cols+j]];
-
-                // Posicionar el sprite en la matriz
-                newSprite.transform.localPosition = new Vector3(i, j, 0);
-                // Guardar el sprite en la matriz de GameObjects
-
-                matrizMapa[i * cols + j] = newSprite;
-*/
                 matrizMapa[i * cols + j].gameObject.GetComponent<ElementoMapa>().fila = i;
                 matrizMapa[i * cols + j].gameObject.GetComponent<ElementoMapa>().columna = j;
                 matrizMapa[i * cols + j].gameObject.GetComponent<ElementoMapa>().tipoTesela = mapaTiposTeselaTemp[i*cols+j];
@@ -270,7 +225,7 @@ Debug.Log("El json creado: "+json+" número de elementos en la matriz: "+mapsCol
     //y tenerlos en el scriptable object para poder seleccionarlos.
     private void CargarMapas(){
         Debug.Log("CargarMapas(). Pendiente, cargar todos los mapas más los creados por el jugador y mostrarlos en el dropdown");
-        mapsCollection.CrearMapasJuego();
+        lamapsCollection.CrearMapasDefecto(rows,cols);
         //Inicializamos la matriz de casillas
 
         if( modoJuego == 1 ){ //Diseñar nivel
@@ -292,18 +247,30 @@ Debug.Log("El json creado: "+json+" número de elementos en la matriz: "+mapsCol
             }
         }
 
-        elDropdown.gameObject.GetComponent<TMP_Dropdown>().ClearOptions();
-        elDropdown.gameObject.GetComponent<TMP_Dropdown>().AddOptions(mapsCollection.GetMapsNames());
-
         Debug.Log("FALTA BUSCAR LOS MAPAS GUARDADOS Y CARGARLOS.");
+
+        //Una vez cargados los niveles del juego, cargamos los mapas de disco si hay alguno
+        //"/MapasSokoban"+SceneManager.GetActiveScene().buildIndex+"Mapa"+mapaActual+".txt";
+        string[] archivosJSON = Directory.GetFiles(Application.persistentDataPath,"*.txt");
+        string json;
+        foreach(string archivo in archivosJSON){
+            mapaTemp = new MapMatrix(rows,cols);
+            json = File.ReadAllText(archivo);
+            JsonUtility.FromJsonOverwrite(json,mapaTemp);
+Debug.Log("He leído el mapa: "+mapaTemp.nombreMapa);
+            //Debug.Log("He leído el nombre del archivo: "+contenido+" de "+archivosJSON.Length);
+            lamapsCollection.AddNewMap(mapaTemp.matrix,mapaTemp.rows,mapaTemp.cols);
+        }
+
+        elDropdown.gameObject.GetComponent<TMP_Dropdown>().ClearOptions();
+        elDropdown.gameObject.GetComponent<TMP_Dropdown>().AddOptions(lamapsCollection.GetMapsNames());
     }
 
     private void JugarMapa(int numMapa){
-        Debug.Log("JugarMapa. Vamos a ver si cargamos el mapa: "+numMapa+" para jugarlo Mapas cargados: "+mapsCollection.mapas.Count);
+        Debug.Log("JugarMapa. Vamos a ver si cargamos el mapa: "+numMapa+" para jugarlo Mapas cargados: "+lamapsCollection.mapas.Count);
         int[] mapaTiposTeselaTemp;
         //Cogemos los datos de las casillas del mapa en cuestión
-        mapsCollection.GetMapAt(numMapa,out mapaTiposTeselaTemp);
-
+        lamapsCollection.GetMapAt(numMapa,out mapaTiposTeselaTemp);
         listaCajas = new List<Caja>();
         // Crear y posicionar los prefabs
         for (int i = 0; i < rows; i++)
@@ -322,6 +289,8 @@ Debug.Log("El json creado: "+json+" número de elementos en la matriz: "+mapsCol
                         casilla = Instantiate(elPlayer, posMapa.transform);
                         casilla.transform.localPosition = new Vector3(i, j, 0);
                         laCamara.transform.SetParent(casilla.transform, false);
+                        //En algunos niveles no enfoca bien y no sé porqué, lo corregimos
+                        laCamara.transform.SetLocalPositionAndRotation(new Vector3(laCamara.transform.position.x,laCamara.transform.position.y,laCamara.transform.position.z-1),laCamara.transform.rotation);
                         //Creamos la casilla suelo "debajo" de la actual para que se vea cuando se mueva
                         casilla2 = Instantiate(elSuelo, posMapa.transform);
                         casilla2.transform.localPosition = new Vector3(i, j, 0.1f);
@@ -362,9 +331,15 @@ Debug.Log("El json creado: "+json+" número de elementos en la matriz: "+mapsCol
 
     public void Jugar(int numMapa){
         Debug.Log("Jugar. A jugar!");
+        CargarMapas();
         modoJuego=0;
         juegoPausado = false;
         mapaActual=1;
+        ReiniciarNivel();
+        pantallaJugar.SetActive(true);
+        pantallaFinJuego.SetActive(false);
+        pantallaEditorNiveles.SetActive(false);
+        pantallaPausa.SetActive(false);
         JugarMapa(mapaActual);
 //        Instantiate(elPlayer);
         elPlayer.transform.position = new Vector3(0, 0);
@@ -377,27 +352,43 @@ Debug.Log("El json creado: "+json+" número de elementos en la matriz: "+mapsCol
         juegoPausado = false;
         pantallaPausa.SetActive(false);
         pantallaEditorNiveles.SetActive(true);
+        pantallaJugar.SetActive(false);
+        pantallaFinJuego.SetActive(false);
         CargarMapas();
     }
 
     private void PausarJuego()
     {
+        juegoPausado = !juegoPausado;
         if( juegoPausado ){
             Time.timeScale = 0;
+            pantallaEditorNiveles.SetActive(false);
+            pantallaJugar.SetActive(false);
         }else{
             Time.timeScale = 1;
+            if(modoJuego == 0){
+                pantallaEditorNiveles.SetActive(false);
+                pantallaJugar.SetActive(true);
+            }else{
+                pantallaEditorNiveles.SetActive(true);
+                pantallaJugar.SetActive(false);
+            }
         }
-        AudioListener.pause = juegoPausado;
         pantallaPausa.SetActive(juegoPausado);
+        AudioListener.pause = juegoPausado;
     }
 
     public void CajaColocada(){
         int totalColocadas = ContarColocadas();
         if( totalColocadas == numCajas){
             Debug.Log("Cargando siguiente mapa.");
-            ReiniciarNivel();
             mapaActual++;
-            JugarMapa(mapaActual);
+            if( lamapsCollection.mapas.Count>mapaActual){
+                ReiniciarNivel();
+                JugarMapa(mapaActual);
+            }else{
+                FindDeJuego();
+            }
         }
     }
 
@@ -410,7 +401,9 @@ Debug.Log("El json creado: "+json+" número de elementos en la matriz: "+mapsCol
         return cuantas;
     }
 
+    //Preparamos el nivel para cargar reiniciando lo necesario
     private void ReiniciarNivel(){
+        pantallaJugar.transform.Find("NumLevel").GetComponent<TMP_Text>().SetText("Level :"+mapaActual);
         numCajas=0;
         laCamara.transform.SetParent(null);
         foreach (Transform child in posMapa.transform)
@@ -420,5 +413,15 @@ Debug.Log("Destruyendo a: "+child.name);
             Destroy(child.gameObject);
         }
     }
+    private void FindDeJuego(){
+        pantallaFinJuego.SetActive(true);
+    }
 
+    public void Salir(){
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            Application.Quit();
+        #endif
+    }
 }
